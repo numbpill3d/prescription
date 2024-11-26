@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+:root {
+  --warning-yellow: #fff44f;
+  --prescription-blue: #eef6ff;
+  --caution-red: #ff4f4f;
+  --medical-white: #f8f9fa;
+  --pill-pink: #ffb6c1;
+  --footer-blue: #d4e6f9;
+}
+
+body {
+  background: var(--medical-white);
+  font-family: "Courier New", monospace;
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Floating Particles */
+.particle {
+  position: fixed;
+  pointer-events: none;
+  animation: float 15s infinite linear;
+  opacity: 0.5;
+  z-index: -1;
+}
+
+.plus-sign {
+  color: var(--caution-red);
+  font-size: 24px;
+  font-weight: bold;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(var(--move-x), var(--move-y)) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.rx-container {
+  border: 2px dashed #000;
+  padding: 20px;
+  position: relative;
+  background: white;
+  max-width: 800px;
+  margin: 20px auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.rx-container:hover {
+  transform: translateY(-5px);
+}
+
+.rx-header {
+  text-align: center;
+  border-bottom: 2px solid black;
+  padding-bottom: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.rx-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: var(--caution-red);
+  animation: slide-in 2s infinite;
+}
+
+@keyframes slide-in {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.warning-strip {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--warning-yellow),
+    var(--warning-yellow) 10px,
+    black 10px,
+    black 20px
+  );
+  height: 20px;
+  margin: 20px 0;
+  animation: scroll 20s linear infinite;
+}
+
+@keyframes scroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 50px 0; }
+}
+
+.dosage-info {
+  font-family: monospace;
+  border: 1px solid black;
+  padding: 15px;
+  margin: 10px 0;
+  background: var(--prescription-blue);
+  transition: all 0.3s;
+}
+
+.dosage-info:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.side-effects {
+  font-size: 0.8em;
+  background: var(--caution-red);
+  color: white;
+  padding: 10px;
+  margin: 10px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.side-effects::before {
+  content: '⚠';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: translateY(-50%) scale(1); }
+  50% { transform: translateY(-50%) scale(1.2); }
+  100% { transform: translateY(-50%) scale(1); }
+}
+
+.ndc-number {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: "OCR A Extended", monospace;
+  border: 1px solid black;
+  padding: 5px;
+  transform: rotate(5deg);
+  transition: transform 0.3s;
+}
+
+.ndc-number:hover {
+  transform: rotate(-5deg) scale(1.1);
+}
+
+.barcode {
+  height: 50px;
+  background: repeating-linear-gradient(
+    to right,
+    black 0px,
+    black 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  margin: 20px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.barcode::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
+  animation: scan 3s infinite;
+}
+
+@keyframes scan {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.pill-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.pill {
+  aspect-ratio: 2/1;
+  background: var(--pill-pink);
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.pill:hover {
+  transform: rotate(45deg) scale(1.1);
+  background: var(--caution-red);
+  color: white;
+}
+
+.pill::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.8), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.pill:hover::after {
+  opacity: 0.3;
+}
+
+.tabs {
+  display: flex;
+  margin: 20px 0;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  cursor: pointer;
+  background: var(--prescription-blue);
+  border: 1px solid black;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab:hover {
+  background: var(--pill-pink);
+  transform: translateY(-2px);
+}
+
+.tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--caution-red);
+  transform: scaleX(0);
+  transition: transform 0.3s;
+}
+
+.tab:hover::after {
+  transform: scaleX(1);
+}
+
+.tab-content {
+  display: none;
+  padding: 20px;
+  border: 1px solid black;
+  background: var(--prescription-blue);
+  transition: all 0.3s;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.profile-picture {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 2px solid black;
+  margin-bottom: 20px;
+  transition: all 0.3s;
+}
+
+.profile-picture:hover {
+  transform: scale(1.1) rotate(360deg);
+  border-color: var(--caution-red);
+}
+
+.about-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+  padding: 20px;
+  margin: 10px 0;
+  background: var(--prescription-blue);
+  border: 1px solid black;
+  transition: all 0.3s;
+}
+
+.about-section:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.likes-dislikes-section {
+  background: var(--pill-pink);
+  padding: 20px;
+  margin: 10px 0;
+  border: 1px solid black;
+  transition: all 0.3s;
+}
+
+.more-text-section {
+  background: var(--caution-red);
+  color: white;
+  padding: 20px;
+  margin: 10px 0;
+  border: 1px solid black;
+  transition: all 0.3s;
+}
+
+/* New Footer Styles */
+.rx-footer {
+  background: var(--footer-blue);
+  margin-top: 40px;
+  padding: 30px;
+  border-top: 2px dashed black;
+  position: relative;
+}
+
+.rx-footer::before {
+  content: '℞';
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 40px;
+  background: white;
+  padding: 10px 20px;
+  border: 2px dashed black;
+  border-radius: 50%;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-column {
+  padding: 20px;
+  background: white;
+  border: 1px solid black;
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+
+.footer-column:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.footer-column h3 {
+  color: var(--caution-red);
+  border-bottom: 2px solid var(--prescription-blue);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.footer-column ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.footer-column ul li {
+  margin: 10px 0;
+  position: relative;
+  padding-left: 20px;
+}
+
+.footer-column ul li::before {
+  content: '+';
+  position: absolute;
+  left: 0;
+  color: var(--caution-red);
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid black;
+}
+
+.footer-bottom p {
+  font-size: 0.8em;
+  color: #666;
+}
+
+/* Emergency Contact Strip */
+.emergency-strip {
+  background: var(--caution-red);
+  color: white;
+  text-align: center;
+  padding: 10px;
+  margin-top: 20px;
+  font-weight: bold;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+</style>
+</head>
+<body>
+  <!-- Particles Container -->
+  <div id="particles-container"></div>
+
+  <div class="rx-container">
+    <div class="ndc-number">NDC 0000-0000-00</div>
+    <div class="rx-header">Digital Prescription</div>
+    
+    <div class="warning-strip"></div>
+    
+    <div class="dosage-info">
+      Rx# 202411-BLOG<br>
+      TAKE ONE POST DAILY<br>
+      DO NOT EXCEED RECOMMENDED SCREEN TIME
+    </div>
+    
+    <div class="pill-grid">
+      <div class="pill">Mon</div>
+      <div class="pill">Tue</div>
+      <div class="pill">Wed</div>
+      <div class="pill">Thu</div>
+      <div class="pill">Fri</div>
+      <div class="pill">Sat</div>
+      <div class="pill">Sun</div>
+    </div>
+    
+    <div class="side-effects">
+      CAUTION: May cause excessive nostalgia, chronic scrolling, and acute aesthetic appreciation
+    </div>
+    
+    <div class="barcode"></div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="showTab(event, 'tab1')">Dosage</div>
+      <div class="tab" onclick="showTab(event, 'tab2')">Side Effects</div>
+      <div class="tab" onclick="showTab(event, 'tab3')">Warnings</div>
+    </div>
+
+    <div id="tab1" class="tab-content active">
+      <p>Take one post daily. Do not exceed recommended screen time.</p>
+    </div>
+
+    <div id="tab2" class="tab-content">
+      <p>May cause excessive nostalgia, chronic scrolling, and acute aesthetic appreciation.</p>
+    </div>
+
+    <div id="tab3" class="tab-content">
+      <p>Avoid operating heavy machinery after consumption.</p>
+    </div>
+
+    <div class="profile-section">
+      <img src="/api/placeholder/150/150" alt="Profile Picture" class="profile-picture">
+      <div class="about-section">
+        <div>
+          <h2>About Me</h2>
+          <p>I am a digital enthusiast with a passion for technology and design. My journey in the digital world has been filled with exciting challenges and rewarding experiences.</p>
+        </div>
+        <div>
+          <h2>Likes & Dislikes</h2>
+          <p><strong>Likes:</strong> Coding, Design, Reading, Traveling</p>
+          <p><strong>Dislikes:</strong> Spam, Negativity, Procrastination</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Footer Section -->
+    <div class="rx-footer">
+      <div class="footer-grid">
+        <div class="footer-column">
+          <h3>Emergency Contacts</h3>
+          <ul>
+            <li>Tech Support: 24/7</li>
+            <li>Blog Emergency: Always Online</li>
+            <li>Design Consultation: By Appointment</li>
+          </ul>
+        </div>
+        <div class="<div class="footer-column">
+          <h3>Prescribing Information</h3>
+          <ul>
+            <li>Content Guidelines</li>
+            <li>Publishing Schedule</li>
+            <li>Digital Wellness Tips</li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Refills & Support</h3>
+          <ul>
+            <li>Newsletter Subscription</li>
+            <li>Content Archive</li>
+            <li>FAQ & Documentation</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="emergency-strip">
+        FOR DIGITAL EMERGENCIES, CONTACT YOUR LOCAL DEVELOPER
+      </div>
+      
+      <div class="footer-bottom">
+        <p>Rx Reference: #2024-DIGITAL-HEALTH</p>
+        <p>Expires: Never</p>
+        <p>© 2024 Digital Pharmacy. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab Functionality
+    function showTab(evt, tabName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tab-content");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].classList.remove("active");
+      }
+      tablinks = document.getElementsByClassName("tab");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove("active");
+      }
+      document.getElementById(tabName).classList.add("active");
+      evt.currentTarget.classList.add("active");
+    }
+
+    // Floating Particles Animation
+    function createParticles() {
+      const container = document.getElementById('particles-container');
+      const particleCount = 20;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Randomly choose between plus sign and blood drop
+        if (Math.random() > 0.5) {
+          particle.className += ' plus-sign';
+          particle.innerHTML = '+';
+        } else {
+          particle.style.width = '8px';
+          particle.style.height = '8px';
+          particle.style.background = 'var(--caution-red)';
+          particle.style.borderRadius = '50% 50% 50% 0';
+          particle.style.transform = 'rotate(-45deg)';
+        }
+
+        // Random starting position
+        particle.style.left = Math.random() * 100 + 'vw';
+        particle.style.top = Math.random() * 100 + 'vh';
+
+        // Random movement
+        const moveX = (Math.random() - 0.5) * 200;
+        const moveY = Math.random() * 200 + 100;
+        particle.style.setProperty('--move-x', moveX + 'px');
+        particle.style.setProperty('--move-y', moveY + 'px');
+
+        // Random animation duration
+        particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+        // Random delay
+        particle.style.animationDelay = (Math.random() * 5) + 's';
+
+        container.appendChild(particle);
+
+        // Remove and recreate particle after animation
+        particle.addEventListener('animationend', () => {
+          particle.remove();
+          createParticles();
+        });
+      }
+    }
+
+    // Initialize particles
+    createParticles();
+
+    // Hover effects for footer columns
+    document.querySelectorAll('.footer-column').forEach(column => {
+      column.addEventListener('mouseenter', () => {
+        column.style.transform = 'translateY(-5px)';
+      });
+      
+      column.addEventListener('mouseleave', () => {
+        column.style.transform = 'translateY(0)';
+      });
+    });
+
+    // Add pulse effect to emergency strip
+    const emergencyStrip = document.querySelector('.emergency-strip');
+    setInterval(() => {
+      emergencyStrip.style.transform = 'scale(1.02)';
+      setTimeout(() => {
+        emergencyStrip.style.transform = 'scale(1)';
+      }, 200);
+    }, 2000);
+  </script>
+</body>
+</html>
